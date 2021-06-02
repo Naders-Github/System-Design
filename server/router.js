@@ -7,8 +7,8 @@ router
   .post(controllers.postReviews)
 
 router
-  .route('/reviewsmeta/:id')
-  .get(controllers.getMetaReviews)
+  .route('/characteristics')
+  .get(controllers.getCharacteristics)
 
 router
   .route('/reviews/helpful/:review_id')

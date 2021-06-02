@@ -5,7 +5,12 @@
   "main": "server/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./server/index.js"
+    "start": "nodemon ./server/index.js",
+    "seedReviewPhoto": "nodemon server/database/seedReviewsPhotos.js",
+    "seedChars": "nodemon server/database/seedCharacteristics.js",
+    "seedCharReviews": "nodemon server/database/seedCharacteristic_review.js",
+    "seedReview": "nodemon server/database/seedReviews.js",
+    "stress-test": "artillery run stressTests/stress.yml"
   },
   "repository": {
     "type": "git",
@@ -18,7 +23,7 @@
   },
   "homepage": "https://github.com/Naders-Github/System-Design#readme",
   "dependencies": {
-    "artillery": "1.7.2",
+    "artillery": "^1.7.2",
     "axios": "0.21.1",
     "cors": "2.8.5",
     "csv": "^5.5.0",
@@ -27,6 +32,7 @@
     "dotenv": "^8.2.0",
     "express": "4.17.1",
     "fast-csv": "^4.3.6",
+    "k6": "0.0.0",
     "mongodb": "3.6.6",
     "mongoose": "^5.12.7",
     "morgan": "1.10.0",
