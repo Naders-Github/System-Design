@@ -15,26 +15,26 @@ const client = new Client({
 
 client.connect((err) => err ? console.error(err) : console.log('Database Success'));
 
-const reviews_photos = 'reviews_photos';
-const filePath = path.join(__dirname, '../csvFiles/reviews_photos.csv');
+const filePath = path.join(__dirname, '../../csvFiles/reviews/characteristics.csv');
+const characteristics = 'characteristics';
 
 const createTable = `
-DROP TABLE IF EXISTS ${reviews_photos};
-CREATE SEQUENCE photos_sequence;
+DROP TABLE IF EXISTS ${characteristics};
+CREATE SEQUENCE characteristics_sequence;
 
-CREATE TABLE IF NOT EXISTS ${reviews_photos} (
+CREATE TABLE IF NOT EXISTS ${characteristics} (
   id SERIAL PRIMARY KEY,
-  reviews_id INT NOT NULL,
-  url TEXT
+  product_id INT NOT NULL,
+  name TEXT NOT NULL
 );
-CREATE INDEX photos_index ON ${reviews_photos}(reviews_id);
-ALTER SEQUENCE photos_sequence OWNED BY ${reviews_photos}.id;`
+CREATE INDEX characteristics_index ON ${characteristics}(product_id);
+ALTER SEQUENCE characteristics_sequence OWNED BY ${characteristics}.id`
 
 client.query(createTable).then((res) => {
   console.log('Table successfully created!!!')
 });
 
-const stream = client.query(copyFrom(`COPY ${reviews_photos} FROM STDIN DELIMITER ',' CSV HEADER;`));
+const stream = client.query(copyFrom(`COPY ${characteristics} FROM STDIN DELIMITER ',' CSV HEADER;`));
 const fileStream = fs.createReadStream(filePath);
 
 console.time('Execution Time');
@@ -46,7 +46,7 @@ stream.on('error', (error) => {
   console.log(`Error in copy command: ${error}`)
 })
 stream.on('finish', () => {
-    console.log(`Completed loading data into ${reviews_photos} `)
+    console.log(`Completed loading data into ${characteristics} `)
     client.end();
 })
 
@@ -55,5 +55,3 @@ fileStream.on('end', () => {
   console.log('Stream ended');
   console.timeEnd('Execution Time');
 });
-
-module.exports = client;

@@ -6,14 +6,14 @@ const path = require('path');
 const router = require('./router.js');
 
 const app = express();
-const PORT = 3030;
+const PORT = 3000;
 
 // app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(cors());
 app.use(morgan('dev'));
 app.use('/api', router);
-app.use(express.static(path.join(__dirname, '../client/dist')))
+app.use(express.static(path.join(__dirname, '../public/dist')))
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {

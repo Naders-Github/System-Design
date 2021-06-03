@@ -15,7 +15,7 @@ const client = new Client({
 
 client.connect((err) => err ? console.error(err) : console.log('Database Success'));
 
-const filePath = path.join(__dirname, '../csvFiles/characteristic_reviews.csv');
+const filePath = path.join(__dirname, '../../csvFiles/reviews/characteristic_reviews.csv');
 const characteristic_reviews = 'characteristic_reviews';
 
 const createTable = `
