@@ -6,5 +6,4 @@ characteristics.csv
 characteristic_reviews.csv
 .vscode
 csvFiles
-config
 package-lock.json
