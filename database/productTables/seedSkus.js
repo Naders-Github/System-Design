@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const client = new Client({
-  user: 'postgres',
+  user: 'naderdamouni',
   host: 'localhost',
   database: 'sdc',
   password: config.TOKEN,
