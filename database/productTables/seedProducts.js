@@ -20,8 +20,6 @@ const products = 'products';
 
 const createTable = `
 DROP TABLE IF EXISTS ${products};
-CREATE SEQUENCE products_sequence;
-
 CREATE TABLE IF NOT EXISTS ${products} (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
@@ -29,9 +27,7 @@ CREATE TABLE IF NOT EXISTS ${products} (
   description TEXT NOT NULL,
   category TEXT NOT NULL,
   default_price VARCHAR DEFAULT NULL
-);
-CREATE INDEX products_index ON ${products}(id);
-ALTER SEQUENCE products_sequence OWNED BY ${products}.id;`
+);`;
 
 client.query(createTable).then((res) => {
   console.log('Table successfully created!!!')
@@ -48,9 +44,28 @@ fileStream.on('error', (error) =>{
 stream.on('error', (error) => {
   console.log(`Error in copy command: ${error}`)
 })
+
+const alterTable = `
+ALTER TABLE ${products}
+DROP COLUMN id,
+ADD COLUMN id SERIAL PRIMARY KEY;
+DROP INDEX IF EXISTS products_index;
+CREATE INDEX IF NOT EXISTS products_index ON ${products}(id);
+`;
+
 stream.on('finish', () => {
-    console.log(`Completed loading data into ${products} `)
-    client.end();
+  console.log(`Completed loading data into ${products}`);
+  console.log('Starting table alteration');
+  console.time('Alter execution time');
+  client.query(alterTable)
+    .then(() => {
+      console.log('Altered Successfully!')
+      console.timeEnd('End Altered execution time!')
+      client.end();
+    })
+    .catch((err) => {
+      console.error(err);
+    })
 })
 
 fileStream.on('open', () => fileStream.pipe(stream));

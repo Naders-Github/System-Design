@@ -3,14 +3,18 @@ import {
 } from 'redux';
 import thunk from 'redux-thunk';
 import reviewsReducer from '../reducers/reviewsReducer';
-import productIdReducer from '../reducers/productIdReducer';
+import productsReducer from '../reducers/productsReducer';
+import questionsReducer from '../reducers/questionsReducer';
+import answersReducer from '../reducers/answersReducer';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const store = createStore(
   combineReducers({
     reviewsReducer,
-    productIdReducer
+    productsReducer,
+    questionsReducer,
+    answersReducer
   }),
   composeEnhancers(applyMiddleware(thunk)),
 );

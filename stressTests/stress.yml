@@ -1,12 +1,12 @@
 config:
-  target: 'http://localhost:3030'
+  target: 'http://localhost:3000'
   phases:
-    - duration: 60
-      arrivalRate: 300
+    - duration: 3m
+      arrivalRate: 500
   defaults:
     headers:
       x-my-service-auth: '987401838271002188298567'
 scenarios:
   - flow:
-    - get:
-        url: "/api/characteristics"
+    - put:
+        url: "/api/answers/helpful/10000"

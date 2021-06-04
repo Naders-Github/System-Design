@@ -15,35 +15,22 @@ const client = new Client({
 
 client.connect((err) => err ? console.error(err) : console.log('Database Success'));
 
-const filePath = path.join(__dirname, '../../csvFiles/reviews/reviews.csv');
-const reviews = 'reviews';
+const reviews_photos = 'reviews_photos';
+const filePath = path.join(__dirname, '../../csvFiles/reviews/reviews_photos.csv');
 
 const createTable = `
-DROP TABLE IF EXISTS ${reviews};
-CREATE SEQUENCE reviews_sequence;
-
-CREATE TABLE IF NOT EXISTS ${reviews} (
-  id SERIAL,
-  product_id INTEGER DEFAULT NULL,
-  rating INTEGER DEFAULT NULL,
-  created_at TIMESTAMP DEFAULT NULL,
-  summary TEXT DEFAULT NULL,
-  body TEXT DEFAULT NULL,
-  recommend BOOLEAN DEFAULT NULL,
-  reported BOOLEAN DEFAULT NULL,
-  reviewer_name TEXT DEFAULT NULL,
-  reviewer_email TEXT DEFAULT NULL,
-  response TEXT DEFAULT NULL,
-  helpfulness INTEGER DEFAULT NULL
-);
-CREATE INDEX review_index ON ${reviews}(id);
-ALTER SEQUENCE reviews_sequence OWNED BY ${reviews}.id;`
+DROP TABLE IF EXISTS ${reviews_photos};
+CREATE TABLE IF NOT EXISTS ${reviews_photos} (
+  id SERIAL PRIMARY KEY,
+  reviews_id INT NOT NULL,
+  url TEXT
+);`;
 
 client.query(createTable).then((res) => {
   console.log('Table successfully created!!!')
 });
 
-const stream = client.query(copyFrom(`COPY ${reviews} FROM STDIN DELIMITER ',' CSV HEADER;`));
+const stream = client.query(copyFrom(`COPY ${reviews_photos} FROM STDIN DELIMITER ',' CSV HEADER;`));
 const fileStream = fs.createReadStream(filePath);
 
 console.time('Execution Time');
@@ -54,9 +41,28 @@ fileStream.on('error', (error) =>{
 stream.on('error', (error) => {
   console.log(`Error in copy command: ${error}`)
 })
+
+const alterTable = `
+ALTER TABLE ${reviews_photos}
+DROP COLUMN id,
+ADD COLUMN id SERIAL PRIMARY KEY;
+DROP INDEX IF EXISTS reviews_photos_index;
+CREATE INDEX IF NOT EXISTS reviews_photos_index ON ${reviews_photos}(reviews_id);
+`;
+
 stream.on('finish', () => {
-    console.log(`Completed loading data into ${reviews} `)
-    client.end();
+  console.log(`Completed loading data into ${reviews_photos}`);
+  console.log('Starting table alteration');
+  console.time('Alter execution time');
+  client.query(alterTable)
+    .then(() => {
+      console.log('Altered Successfully!')
+      console.timeEnd('End Altered execution time!')
+      client.end();
+    })
+    .catch((err) => {
+      console.error(err);
+    })
 })
 
 fileStream.on('open', () => fileStream.pipe(stream));

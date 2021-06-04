@@ -15,23 +15,27 @@ const client = new Client({
 
 client.connect((err) => err ? console.error(err) : console.log('Database Success'));
 
-const filePath = path.join(__dirname, '../../csvFiles/products/photos.csv');
-const product_photos = 'product_photos';
+const filePath = path.join(__dirname, '../../csvFiles/QnA/questions.csv');
+const questions = 'questions';
 
 const createTable = `
-DROP TABLE IF EXISTS ${product_photos};
-CREATE TABLE IF NOT EXISTS ${product_photos} (
-  id SERIAL NOT NULL,
-  style_id INTEGER NOT NULL,
-  url TEXT NOT NULL,
-  thumbnail_url TEXT NOT NULL
+DROP TABLE IF EXISTS ${questions};
+CREATE TABLE IF NOT EXISTS ${questions} (
+  id SERIAL PRIMARY KEY,
+  product_id INTEGER NOT NULL,
+  body TEXT NOT NULL,
+  date TIMESTAMP NOT NULL,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  reported BOOLEAN DEFAULT false,
+  helpfulness INTEGER NOT NULL
 );`;
 
 client.query(createTable).then((res) => {
   console.log('Table successfully created!!!')
 });
 
-const stream = client.query(copyFrom(`COPY ${product_photos} FROM STDIN DELIMITER ',' CSV HEADER;`));
+const stream = client.query(copyFrom(`COPY ${questions} FROM STDIN DELIMITER ',' CSV HEADER;`));
 const fileStream = fs.createReadStream(filePath);
 
 console.time('Execution Time');
@@ -44,14 +48,15 @@ stream.on('error', (error) => {
 })
 
 const alterTable = `
-ALTER TABLE ${product_photos}
+ALTER TABLE ${questions}
 DROP COLUMN id,
 ADD COLUMN id SERIAL PRIMARY KEY;
-DROP INDEX IF EXISTS product_photos_index;
-CREATE INDEX IF NOT EXISTS product_photos_index ON ${product_photos}(style_id);`;
+DROP INDEX IF EXISTS questions_index;
+CREATE INDEX IF NOT EXISTS questions_index ON ${questions}(product_id)
+`
 
 stream.on('finish', () => {
-  console.log(`Completed loading data into ${product_photos}`);
+  console.log(`Completed loading data into ${questions}`);
   console.log('Starting table alteration');
   console.time('Alter execution time');
   client.query(alterTable)

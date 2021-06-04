@@ -20,16 +20,12 @@ const characteristic_reviews = 'characteristic_reviews';
 
 const createTable = `
 DROP TABLE IF EXISTS ${characteristic_reviews};
-CREATE SEQUENCE characteristic_reviews_sequence;
-
 CREATE TABLE IF NOT EXISTS ${characteristic_reviews} (
   id SERIAL PRIMARY KEY,
   product_id INTEGER NOT NULL,
   review_id INTEGER NOT NULL,
   value INTEGER NOT NULL
-);
-CREATE INDEX characteristic_reviews_index ON ${characteristic_reviews}(product_id);
-ALTER SEQUENCE characteristic_reviews_sequence OWNED BY ${characteristic_reviews}.id`
+);`;
 
 client.query(createTable)
   .then((res) => {
@@ -49,9 +45,30 @@ fileStream.on('error', (error) =>{
 stream.on('error', (error) => {
   console.log(`Error in copy command: ${error}`)
 })
+
+const alterTable = `
+ALTER TABLE ${characteristic_reviews}
+DROP COLUMN id,
+ADD COLUMN id SERIAL PRIMARY KEY;
+DROP INDEX IF EXISTS characteristic_reviews_index;
+CREATE INDEX IF NOT EXISTS characteristic_reviews_index ON ${characteristic_reviews}(review_id);
+DROP INDEX IF EXISTS characteristic_product_index;
+CREATE INDEX IF NOT EXISTS characteristic_product_index ON ${characteristic_reviews}(product_id);
+`;
+
 stream.on('finish', () => {
-    console.log(`Completed loading data into ${characteristic_reviews} `)
-    client.end();
+  console.log(`Completed loading data into ${characteristic_reviews}`);
+  console.log('Starting table alteration');
+  console.time('Alter execution time');
+  client.query(alterTable)
+    .then(() => {
+      console.log('Altered Successfully!')
+      console.timeEnd('End Altered execution time!')
+      client.end();
+    })
+    .catch((err) => {
+      console.error(err);
+    })
 })
 
 fileStream.on('open', () => fileStream.pipe(stream));

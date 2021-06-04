@@ -4,11 +4,10 @@ import ReviewsList from './ReviewsList.jsx';
 
 const Reviews = () => {
   const reviews = useSelector((state) => state.reviewsReducer.reviews);
-  console.log(reviews)
 
   return (
     <div className='reviews'>
-      hi
+      <h1>Reviews Page</h1>
       {reviews.map((review) => (
         <ReviewsList review={review} key={review.id}/>
       ))}
