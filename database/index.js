@@ -5,7 +5,7 @@ const path = require('path');
 const config = '../config/config.js';
 
 const pool = new Pool({
-  user: 'naderdamouni',
+  user: 'postgres',
   host: 'localhost',
   database: 'sdc',
   password: config.TOKEN,
