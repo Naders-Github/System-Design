@@ -15,23 +15,27 @@ const client = new Client({
 
 client.connect((err) => err ? console.error(err) : console.log('Database Success'));
 
-const filePath = path.join(__dirname, '../../csvFiles/products/photos.csv');
-const product_photos = 'product_photos';
+const filePath = path.join(__dirname, '../../csvFiles/QnA/answers.csv');
+const answers = 'answers';
 
 const createTable = `
-DROP TABLE IF EXISTS ${product_photos};
-CREATE TABLE IF NOT EXISTS ${product_photos} (
-  id SERIAL NOT NULL,
-  style_id INTEGER NOT NULL,
-  url TEXT NOT NULL,
-  thumbnail_url TEXT NOT NULL
+DROP TABLE IF EXISTS ${answers};
+CREATE TABLE IF NOT EXISTS ${answers} (
+  id SERIAL PRIMARY KEY,
+  question_id INT NOT NULL,
+  body VARCHAR(1000) NOT NULL,
+  date TIMESTAMP NOT NULL,
+  name VARCHAR(60) NOT NULL,
+  email VARCHAR(60) NOT NULL,
+  reported BOOLEAN DEFAULT false,
+  helpfulness INTEGER NOT NULL
 );`;
 
 client.query(createTable).then((res) => {
   console.log('Table successfully created!!!')
 });
 
-const stream = client.query(copyFrom(`COPY ${product_photos} FROM STDIN DELIMITER ',' CSV HEADER;`));
+const stream = client.query(copyFrom(`COPY ${answers} FROM STDIN DELIMITER ',' CSV HEADER;`));
 const fileStream = fs.createReadStream(filePath);
 
 console.time('Execution Time');
@@ -44,25 +48,25 @@ stream.on('error', (error) => {
 })
 
 const alterTable = `
-ALTER TABLE ${product_photos}
+ALTER TABLE ${answers}
 DROP COLUMN id,
 ADD COLUMN id SERIAL PRIMARY KEY;
-DROP INDEX IF EXISTS product_photos_index;
-CREATE INDEX IF NOT EXISTS product_photos_index ON ${product_photos}(style_id);`;
+DROP INDEX IF EXISTS answers_idx;
+CREATE INDEX IF NOT EXISTS answers_idx ON ${answers} (question_id);`;
 
 stream.on('finish', () => {
-  console.log(`Completed loading data into ${product_photos}`);
-  console.log('Starting table alteration');
-  console.time('Alter execution time');
-  client.query(alterTable)
-    .then(() => {
-      console.log('Altered Successfully!')
-      console.timeEnd('End Altered execution time!')
-      client.end();
-    })
-    .catch((err) => {
-      console.error(err);
-    })
+    console.log(`Completed loading data into ${answers} `);
+    console.log('Starting table alteration');
+    console.time('Alter execution time');
+    client.query(alterTable)
+      .then(() => {
+        console.log('Altered Successfully!')
+        console.timeEnd('End Altered execution time!')
+        client.end();
+      })
+      .catch((err) => {
+        console.error(err);
+      })
 })
 
 fileStream.on('open', () => fileStream.pipe(stream));

@@ -15,26 +15,22 @@ const client = new Client({
 
 client.connect((err) => err ? console.error(err) : console.log('Database Success'));
 
-const reviews_photos = 'reviews_photos';
-const filePath = path.join(__dirname, '../../csvFiles/reviews/reviews_photos.csv');
+const filePath = path.join(__dirname, '../../csvFiles/reviews/characteristics.csv');
+const characteristics = 'characteristics';
 
 const createTable = `
-DROP TABLE IF EXISTS ${reviews_photos};
-CREATE SEQUENCE photos_sequence;
-
-CREATE TABLE IF NOT EXISTS ${reviews_photos} (
+DROP TABLE IF EXISTS ${characteristics};
+CREATE TABLE IF NOT EXISTS ${characteristics} (
   id SERIAL PRIMARY KEY,
-  reviews_id INT NOT NULL,
-  url TEXT
-);
-CREATE INDEX photos_index ON ${reviews_photos}(reviews_id);
-ALTER SEQUENCE photos_sequence OWNED BY ${reviews_photos}.id;`
+  product_id INT NOT NULL,
+  name TEXT NOT NULL
+);`;
 
 client.query(createTable).then((res) => {
   console.log('Table successfully created!!!')
 });
 
-const stream = client.query(copyFrom(`COPY ${reviews_photos} FROM STDIN DELIMITER ',' CSV HEADER;`));
+const stream = client.query(copyFrom(`COPY ${characteristics} FROM STDIN DELIMITER ',' CSV HEADER;`));
 const fileStream = fs.createReadStream(filePath);
 
 console.time('Execution Time');
@@ -45,9 +41,28 @@ fileStream.on('error', (error) =>{
 stream.on('error', (error) => {
   console.log(`Error in copy command: ${error}`)
 })
+
+const alterTable = `
+ALTER TABLE ${characteristics}
+DROP COLUMN id,
+ADD COLUMN id SERIAL PRIMARY KEY;
+DROP INDEX IF EXISTS characteristics_index;
+CREATE INDEX IF NOT EXISTS characteristics_index ON ${characteristics}(product_id);
+`;
+
 stream.on('finish', () => {
-    console.log(`Completed loading data into ${reviews_photos} `)
-    client.end();
+  console.log(`Completed loading data into ${characteristics}`);
+  console.log('Starting table alteration');
+  console.time('Alter execution time');
+  client.query(alterTable)
+    .then(() => {
+      console.log('Altered Successfully!')
+      console.timeEnd('End Altered execution time!')
+      client.end();
+    })
+    .catch((err) => {
+      console.error(err);
+    })
 })
 
 fileStream.on('open', () => fileStream.pipe(stream));
@@ -55,5 +70,3 @@ fileStream.on('end', () => {
   console.log('Stream ended');
   console.timeEnd('Execution Time');
 });
-
-module.exports = client;

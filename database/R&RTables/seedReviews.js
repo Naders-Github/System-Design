@@ -15,23 +15,31 @@ const client = new Client({
 
 client.connect((err) => err ? console.error(err) : console.log('Database Success'));
 
-const filePath = path.join(__dirname, '../../csvFiles/products/photos.csv');
-const product_photos = 'product_photos';
+const filePath = path.join(__dirname, '../../csvFiles/reviews/reviews.csv');
+const reviews = 'reviews';
 
 const createTable = `
-DROP TABLE IF EXISTS ${product_photos};
-CREATE TABLE IF NOT EXISTS ${product_photos} (
-  id SERIAL NOT NULL,
-  style_id INTEGER NOT NULL,
-  url TEXT NOT NULL,
-  thumbnail_url TEXT NOT NULL
+DROP TABLE IF EXISTS ${reviews};
+CREATE TABLE IF NOT EXISTS ${reviews} (
+  id SERIAL,
+  product_id INTEGER DEFAULT NULL,
+  rating INTEGER DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT NULL,
+  summary TEXT DEFAULT NULL,
+  body TEXT DEFAULT NULL,
+  recommend BOOLEAN DEFAULT NULL,
+  reported BOOLEAN DEFAULT NULL,
+  reviewer_name TEXT DEFAULT NULL,
+  reviewer_email TEXT DEFAULT NULL,
+  response TEXT DEFAULT NULL,
+  helpfulness INTEGER DEFAULT NULL
 );`;
 
 client.query(createTable).then((res) => {
   console.log('Table successfully created!!!')
 });
 
-const stream = client.query(copyFrom(`COPY ${product_photos} FROM STDIN DELIMITER ',' CSV HEADER;`));
+const stream = client.query(copyFrom(`COPY ${reviews} FROM STDIN DELIMITER ',' CSV HEADER;`));
 const fileStream = fs.createReadStream(filePath);
 
 console.time('Execution Time');
@@ -44,14 +52,15 @@ stream.on('error', (error) => {
 })
 
 const alterTable = `
-ALTER TABLE ${product_photos}
+ALTER TABLE ${reviews}
 DROP COLUMN id,
 ADD COLUMN id SERIAL PRIMARY KEY;
-DROP INDEX IF EXISTS product_photos_index;
-CREATE INDEX IF NOT EXISTS product_photos_index ON ${product_photos}(style_id);`;
+DROP INDEX IF EXISTS reviews_index;
+CREATE INDEX IF NOT EXISTS reviews_index ON ${reviews}(product_id);
+`;
 
 stream.on('finish', () => {
-  console.log(`Completed loading data into ${product_photos}`);
+  console.log(`Completed loading data into ${reviews}`);
   console.log('Starting table alteration');
   console.time('Alter execution time');
   client.query(alterTable)

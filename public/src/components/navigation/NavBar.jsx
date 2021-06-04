@@ -1,19 +1,19 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 import { Navbar, Button } from 'react-bootstrap';
 
 const NavBar = () => {
-  const history = useHistory();
-
-  const handleReviews = () => {
-    history.push('/reviews');
-  };
 
   return (
     <div>
       <Navbar sticky='top' className='navbar'>
-        <Button type='submit' onClick={handleReviews}>
+        <Button type='submit'>
+          Home
+        </Button>
+        <Button type='submit'>
           Reviews
+        </Button>
+        <Button type='submit'>
+          Products
         </Button>
       </Navbar>
     </div>

@@ -20,16 +20,12 @@ const features = 'features';
 
 const createTable = `
 DROP TABLE IF EXISTS ${features};
-CREATE SEQUENCE features_sequence;
-
 CREATE TABLE IF NOT EXISTS ${features} (
   id SERIAL PRIMARY KEY,
   product_id INTEGER DEFAULT NULL,
   feature TEXT NOT NULL,
   value TEXT
-);
-CREATE INDEX features_index ON ${features}(id);
-ALTER SEQUENCE features_sequence OWNED BY ${features}.id;`
+);`;
 
 client.query(createTable).then((res) => {
   console.log('Table successfully created!!!')
@@ -46,9 +42,28 @@ fileStream.on('error', (error) =>{
 stream.on('error', (error) => {
   console.log(`Error in copy command: ${error}`)
 })
+
+const alterTable = `
+ALTER TABLE ${features}
+DROP COLUMN id,
+ADD COLUMN id SERIAL PRIMARY KEY;
+DROP INDEX IF EXISTS features_index;
+CREATE INDEX IF NOT EXISTS features_index ON ${features}(product_id)
+`;
+
 stream.on('finish', () => {
-    console.log(`Completed loading data into ${features} `)
-    client.end();
+  console.log(`Completed loading data into ${features} `);
+  console.log('Starting table alteration');
+  console.time('Alter execution time');
+  client.query(alterTable)
+    .then(() => {
+      console.log('Altered Successfully!')
+      console.timeEnd('End Altered execution time!')
+      client.end();
+    })
+    .catch((err) => {
+      console.error(err);
+    })
 })
 
 fileStream.on('open', () => fileStream.pipe(stream));
