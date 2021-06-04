@@ -5,10 +5,10 @@ const path = require('path');
 const config = '../config/config.js';
 
 const pool = new Pool({
-  user: 'postgres',
+  user: 'naderdamouni',
   host: 'localhost',
   database: 'sdc',
-  password: '',
+  password: config.TOKEN,
   port: 5432,
 });
 
