@@ -8,7 +8,7 @@ const pool = new Pool({
   user: 'naderdamouni',
   host: 'localhost',
   database: 'sdc',
-  password: config.TOKEN,
+  password: 'Sawyer22@',
   port: 5432,
 });
 
@@ -19,5 +19,5 @@ pool.connect((err) => {
     console.log('Successfully connected to the database!!');
   }
 });
-https://github.com/Naders-Github/System-Design.git
+
 module.exports = pool;
