@@ -1,5 +1,4 @@
 node_modules
-node_modules
 .DS_Store
 reviews.csv
 reviews_photos.csv
@@ -8,4 +7,4 @@ characteristic_reviews.csv
 .vscode
 csvFiles
 config
-package-lock-.json
+package-lock.json
