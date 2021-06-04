@@ -9,7 +9,7 @@ const client = new Client({
   user: 'naderdamouni',
   host: 'localhost',
   database: 'sdc',
-  password: '',
+  password: 'Sawyer22@',
   port: 5432,
 });
 
