@@ -44,7 +44,7 @@ postAnswer: (req, res) => {
       }
     })
   },
-updateAnswer: (req, res) => {
+  updateAnswer: (req, res) => {
     const {question_id } = req.params;
     const queryString = `
     UPDATE answers SET helpfulness = helpfulness + 1
