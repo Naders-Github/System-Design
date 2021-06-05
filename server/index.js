@@ -15,8 +15,8 @@ app.use(morgan('dev'));
 app.use('/api', router);
 // app.use(express.static(path.join(__dirname, '../public/dist')))
 
-app.get('/loaderio-732b50797b656841392130dd9b3f1112', (req, res) => {
-  res.send('loaderio-732b50797b656841392130dd9b3f1112');
+app.get('/loaderio-9c92b2210fc2c3b1db84778c3ad2ad6f/', (req, res) => {
+  res.send('loaderio-9c92b2210fc2c3b1db84778c3ad2ad6f');
 });
 
 if (process.env.NODE_ENV !== 'test') {
