@@ -41,10 +41,10 @@ const fileStream = fs.createReadStream(filePath);
 console.time('Execution Time');
 
 fileStream.on('error', (error) =>{
-  console.log(`Error in reading file: ${error}`)
+  console.log(`Error in reading file: ${error}`);
 })
 stream.on('error', (error) => {
-  console.log(`Error in copy command: ${error}`)
+  console.log(`Error in copy command: ${error}`);
 })
 
 const alterTable = `
