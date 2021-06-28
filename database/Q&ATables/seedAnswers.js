@@ -31,6 +31,12 @@ CREATE TABLE IF NOT EXISTS ${answers} (
   helpfulness INTEGER NOT NULL
 );`;
 
+const alterTable = `
+ALTER TABLE ${answers}
+DROP COLUMN id,
+ADD COLUMN id SERIAL PRIMARY KEY;
+DROP INDEX IF EXISTS answers_idx;
+CREATE INDEX IF NOT EXISTS answers_idx ON ${answers} (question_id);`;
 client.query(createTable).then((res) => {
   console.log('Table successfully created!!!')
 });
@@ -47,12 +53,6 @@ stream.on('error', (error) => {
   console.log(`Error in copy command: ${error}`)
 })
 
-const alterTable = `
-ALTER TABLE ${answers}
-DROP COLUMN id,
-ADD COLUMN id SERIAL PRIMARY KEY;
-DROP INDEX IF EXISTS answers_idx;
-CREATE INDEX IF NOT EXISTS answers_idx ON ${answers} (question_id);`;
 
 stream.on('finish', () => {
     console.log(`Completed loading data into ${answers} `);
